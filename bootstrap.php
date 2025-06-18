@@ -9,9 +9,16 @@ function initApp(): array
     $client = new Client("mongodb://localhost:27017");
     $db = $client->school;
 
-    $studentRepo = new StudentRepository($db->students);
-    $logger = new Logger($db->logs);
-    $service = new StudentService($studentRepo, $logger);
+    $studentCollection = $db->students;
+    $logCollection = $db->logs;
 
-    return [$service, $logger];
+    $logger = new Logger($logCollection);
+    $studentRepo = new StudentRepository($studentCollection);
+    $studentService = new StudentService($studentRepo, $logger);
+
+    return [
+        'studentService' => $studentService,
+        'logger' => $logger
+    ];
+
 }

@@ -12,7 +12,7 @@
     <form method="POST" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>">
         <div class="form-section__group">
             <label class="form-section__label">ID (for update):</label>
-            <input class="form-section__input" type="text" name="id" pattern="^[a-f\d]{24}$" title="MongoDB ObjectId (24 hex chars)">
+            <input class="form-section__input" type="text" name="id" pattern="^[a-f\d]{24}$" title="MongoDB_ObjectId">
         </div>
 
         <div class="form-section__group">
