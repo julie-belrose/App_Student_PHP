@@ -14,12 +14,25 @@ class Logger
         $this->collection = $collection;
     }
 
-    public function log(string $level, string $message, array $context = []): void
+    public function log(LogType $type, string $operation, string $message): void
+    {
+        $this->validateOperation($operation);
+        $this->saveLog($type, $operation, $message);
+    }
+
+    private function validateOperation(string $operation): void
+    {
+        if (trim($operation) === '') {
+            throw new \InvalidArgumentException("Operation name cannot be empty.");
+        }
+    }
+
+    private function saveLog(LogType $type, string $operation, string $message): void
     {
         $this->collection->insertOne([
-            'level' => $level,
+            'type' => $type->value, // Convert enum to string
+            'operation' => $operation,
             'message' => $message,
-            'context' => $context,
             'created_at' => new UTCDateTime()
         ]);
     }
