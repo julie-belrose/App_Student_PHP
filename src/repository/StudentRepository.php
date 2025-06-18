@@ -2,24 +2,33 @@
 
 namespace src\repository;
 
-use PDO;
-use src\mapper\StudentMapper;
+use MongoDB\Collection;
+use MongoDB\BSON\ObjectId;
 use src\model\Student;
 
 class StudentRepository {
-    public function __construct(private PDO $db) {}
+    public function __construct(private Collection $collection) {}
+
+    private function documentToStudent(object $doc): Student
+    {
+        return new Student(
+            (string)$doc->_id,
+            $doc->firstname ?? null,
+            $doc->lastname ?? null,
+            $doc->date_of_birth ?? null,
+            $doc->email ?? null
+        );
+    }
 
     public function findAll() {
-        // Requête pour récupérer tous les étudiants trié par nom puis prénom
-        $request = "SELECT id, firstname, lastname, date_of_birth, email FROM student ORDER BY lastname, firstname";
-        $statement = $this->db->prepare($request);
+        $cursor = $this->collection->find([], ['sort' => ['lastname' => 1, 'firstname' => 1]]);
+        $students = [];
 
-        $statement->execute();
+        foreach ($cursor as $doc) {
+            $students[] = $this->documentToStudent($doc);
+        }
 
-        // On récupère tous les enregistrements sous forme de tableaux associatifs
-        $students = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        return StudentMapper::entitiesToStudents($students);
+        return $students;
     }
 
     // Récupère un étudiant par son id

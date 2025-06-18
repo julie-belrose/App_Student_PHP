@@ -6,9 +6,7 @@ use MongoDB\Client;
 use src\repository\StudentRepository;
 use src\service\StudentService;
 use src\model\Logger;
-use src\model\LogType;
 
-// Affichage du menu
 function menu(): void
 {
     echo "
@@ -30,7 +28,8 @@ function menu(): void
 
 try {
     $client = new Client("mongodb://localhost:27017");
-    $db = $client->student_app;
+    $db = $client->school;
+    $collection = $db->student;
 
     // Main collections
     $students = $db->students;
