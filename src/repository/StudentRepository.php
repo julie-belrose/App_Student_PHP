@@ -97,10 +97,10 @@ class StudentRepository {
         return $result->getModifiedCount() > 0;
     }
 
-    public function deleteById($id) {
-        $query = "DELETE FROM student WHERE id=:id;";
-        $statement = $this->db->prepare($query);
-        return $statement->execute(["id" => $id]);
+    public function deleteById(string $id): bool
+    {
+        $result = $this->collection->deleteOne(['_id' => new ObjectId($id)]);
+        return $result->getDeletedCount() > 0;
     }
 
     public function findAllByName($input) {
