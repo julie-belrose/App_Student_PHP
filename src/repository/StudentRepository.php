@@ -103,11 +103,21 @@ class StudentRepository {
         return $result->getDeletedCount() > 0;
     }
 
-    public function findAllByName($input) {
-        $request = "SELECT id, firstname, lastname, date_of_birth, email FROM student WHERE firstname LIKE :input OR lastname LIKE :input";
-        $statement = $this->db->prepare($request);
-        $statement->execute([":input" => $input]);
-        $students = $statement->fetchAll(PDO::FETCH_ASSOC);
-        return StudentMapper::entitiesToStudents($students);
+    public function findAllByName(string $input): array
+    {
+        $regex = new \MongoDB\BSON\Regex($input, 'i');
+        $cursor = $this->collection->find([
+            '$or' => [
+                ['firstname' => $regex],
+                ['lastname' => $regex],
+            ]
+        ]);
+
+        $students = [];
+        foreach ($cursor as $doc) {
+            $students[] = $this->documentToStudent($doc);
+        }
+
+        return $students;
     }
 }
