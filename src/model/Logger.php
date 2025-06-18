@@ -59,8 +59,16 @@ class Logger
         }
     }
 
+    public function clearLogs(): void
+    {
+        $result = $this->collection->deleteMany([]);
+        echo "Logs cleared: {$result->getDeletedCount()} deleted." . PHP_EOL;
+    }
+
+
     public function error(string $message, array $context = []): void
     {
         $this->log('error', $message, $context);
     }
+
 }
