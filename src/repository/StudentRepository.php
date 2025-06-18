@@ -70,17 +70,31 @@ class StudentRepository {
         return $result->isAcknowledged();
     }
 
-    public function update(Student $studentToUpdate) {
-        $request = "UPDATE student SET firstname=:firstname, lastname=:lastname, date_of_birth=:date_of_birth, email=:email WHERE id=:id;";
-        $statement = $this->db->prepare($request);
+    public function update(Student $student): bool
+    {
+        if (!$student->id) {
+            throw new \InvalidArgumentException("ID is required to update.");
+        }
 
-        $statement->bindValue(":firstname", $studentToUpdate->firstname);
-        $statement->bindValue(":lastname", $studentToUpdate->lastname);
-        $statement->bindValue(":date_of_birth", $studentToUpdate->date_of_birth);
-        $statement->bindValue(":email", $studentToUpdate->email);
-        $statement->bindValue(":id", $studentToUpdate->id);
+        $doc = [
+            'firstname' => $student->firstname,
+            'lastname' => $student->lastname,
+        ];
 
-        return $statement->execute();
+        if (!empty($student->date_of_birth)) {
+            $doc['date_of_birth'] = $student->date_of_birth;
+        }
+
+        if (!empty($student->email)) {
+            $doc['email'] = $student->email;
+        }
+
+        $result = $this->collection->updateOne(
+            ['_id' => new ObjectId($student->id)],
+            ['$set' => $doc]
+        );
+
+        return $result->getModifiedCount() > 0;
     }
 
     public function deleteById($id) {
