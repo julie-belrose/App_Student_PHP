@@ -32,12 +32,14 @@ class StudentRepository {
     }
 
     // Récupère un étudiant par son id
-    function findById(int $id): Student|false {
-        $request = "SELECT id, firstname, lastname, date_of_birth, email FROM student WHERE id=:id;";
-        $statement = $this->db->prepare($request);
-        $statement->execute(["id" => $id]);
-        $student = StudentMapper::entityToStudent($statement->fetch(PDO::FETCH_ASSOC));
-        return $student;
+    public function findById(string $id): Student|false
+    {
+        try {
+            $doc = $this->collection->findOne(['_id' => new ObjectId($id)]);
+            return $doc ? $this->documentToStudent($doc) : false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     public function save(Student $student) {
