@@ -37,9 +37,26 @@ class Logger
         ]);
     }
 
-    public function info(string $message, array $context = []): void
+    public function displayLogs(): void
     {
-        $this->log('info', $message, $context);
+        $logs = $this->getRecentLogs(10);
+        $this->printLogs($logs);
+    }
+
+    private function getRecentLogs(int $limit)
+    {
+        return $this->collection->find([], [
+            'sort' => ['created_at' => -1],
+            'limit' => $limit
+        ]);
+    }
+
+    private function printLogs(iterable $logs): void
+    {
+        echo PHP_EOL . "--- Last $logs->limit Logs ---" . PHP_EOL;
+        foreach ($logs as $log) {
+            echo "[{$log['type']}] {$log['operation']} - {$log['message']}" . PHP_EOL;
+        }
     }
 
     public function error(string $message, array $context = []): void
