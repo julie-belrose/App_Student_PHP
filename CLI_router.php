@@ -2,10 +2,10 @@
 function handleCli(array $services): void
 {
     $studentService = $services['studentService'];
-    $logger = $services['logger'];
+    $loggerService = $services['loggerService'];
 
     while (true) {
-        DisplayMenu();
+        displayMenu();
         $input = readline("Choose an option: ");
 
         match ($input) {
@@ -14,10 +14,10 @@ function handleCli(array $services): void
             "3" => $studentService->editStudent(),
             "4" => $studentService->deleteStudent(),
             "5" => $studentService->searchStudentsByIdentity(),
-            "6" => $logger->displayLogs(),
-            "7" => $logger->clearLogs(),
-            "0" => exit("Goodbye!\n"),
-            default => print("Invalid input.\n")
+            "6" => $loggerService->displayLogs(),
+            "7" => $loggerService->clearLogs(),
+            "0" => exit("Goodbye!" . PHP_EOL),
+            default => print("Invalid input" . PHP_EOL),
         };
 
         echo "\n--- Press Enter to continue ---\n";

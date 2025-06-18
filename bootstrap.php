@@ -12,13 +12,13 @@ function initApp(): array
     $studentCollection = $db->students;
     $logCollection = $db->logs;
 
-    $logger = new Log($logCollection);
+    $loggerService = new LogService($logCollection);
     $studentRepo = new StudentRepository($studentCollection);
     $studentService = new StudentService($studentRepo, $logger);
 
     return [
         'studentService' => $studentService,
-        'logger' => $logger
+        'loggerService' => $loggerService
     ];
 
 }
