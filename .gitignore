@@ -17,7 +17,7 @@
 node_modules/
 public/build/
 public/bundles/
-assets/
+public/assets/
 
 # Composer
 /composer.lock
