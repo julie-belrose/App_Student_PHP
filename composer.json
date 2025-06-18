@@ -8,5 +8,8 @@
     "ext-http": "*",
     "ext-mongodb": "*",
     "ext-pdo": "*"
+  },
+  "scripts": {
+    "serve": "php -S localhost:8000 -t public"
   }
 }
