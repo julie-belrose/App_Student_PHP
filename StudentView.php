@@ -50,5 +50,29 @@
     </form>
 </section>
 
+<h2>Student List</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th><th>First Name</th><th>Last Name</th><th>Date of Birth</th><th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php if (!empty($students)): ?>
+        <?php foreach ($students as $student): ?>
+            <tr>
+                <td><?= htmlspecialchars($student->id) ?></td>
+                <td><?= htmlspecialchars($student->firstname) ?></td>
+                <td><?= htmlspecialchars($student->lastname) ?></td>
+                <td><?= htmlspecialchars($student->date_of_birth) ?></td>
+                <td><?= htmlspecialchars($student->email) ?></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr><td colspan="5">No students in the database.</td></tr>
+    <?php endif; ?>
+    </tbody>
+</table>
+
 </body>
 </html>
