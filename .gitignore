@@ -1,0 +1,35 @@
+# PhpStorm
+.idea/
+.phpunit.result.cache
+
+
+# Symfony cache and logs
+/var/
+/vendor/
+
+# Dotenv secrets and local envs
+.env.local
+.env.*.local
+.env.dev
+.env.test
+
+# Node / front assets (si tu utilises encore webpack ou npm/yarn)
+node_modules/
+public/build/
+public/bundles/
+assets/
+
+# Composer
+/composer.lock
+/symfony.lock
+
+# PHPUnit
+/phpunit.xml
+/coverage/
+
+# Migration temp files
+migrations/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
