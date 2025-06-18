@@ -4,171 +4,174 @@ namespace src\service;
 
 use src\model\Student;
 use src\repository\StudentRepository;
+use src\model\Logger;
+use src\model\LogType;
+use PDOException;
 
 class StudentService
 {
-    // Définition des regex à utiliser sous forme de constantes
     const DATE_PATTERN = "/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/";
     const EMAIL_PATTERN = "/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/";
 
-    public function __construct(private StudentRepository $studentRepository){}
+    public function __construct(
+        private StudentRepository $studentRepository,
+        private Logger $logger
+    ) {}
 
-    // Permet d'afficher les étudiants
-    function displayStudents(): void
+    public function displayStudents(): void
     {
-        $students = [];
-        try{
+        try {
             $students = $this->studentRepository->findAll();
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Display', 'Error during findAll: ' . $e->getMessage());
             print("Erreur lors de findAll : " . $e->getMessage());
+            return;
         }
 
-        echo "=== Affichage des étudiants ===\n";
-        if(empty($students))
-            echo "Aucun étudiant";
+        echo "=== List of students ===\n";
+        if (empty($students)) {
+            echo "No students found.";
+        }
 
         foreach ($students as $student) {
-            // On affiche chaque étudiant récupéré depuis la base de données
             echo $student . PHP_EOL;
         }
+
+        $this->logger->log(LogType::DEBUG, 'Display', 'Displayed all students.');
     }
 
-    // Créé un étudiant et effectue des vérifications
-    function createStudent(): bool
+    public function createStudent(): bool
     {
-        echo "Saisir le prénom : ";
+        echo "Enter first name: ";
         $firstname = readline();
-
         if (empty($firstname)) {
-            echo "Prénom incorrect";
+            echo "Invalid first name";
             return false;
         }
 
-        echo "Saisir le nom : ";
+        echo "Enter last name: ";
         $lastname = readline();
-
         if (empty($lastname)) {
-            echo "Nom incorrect";
+            echo "Invalid last name";
             return false;
         }
 
-        echo "Saisir date naissance (aaaa-mm-jj): ";
+        echo "Enter date of birth (yyyy-mm-dd): ";
         $dob = readline();
-
         if (!preg_match(self::DATE_PATTERN, $dob)) {
-            echo "Date incorrecte";
+            echo "Invalid date";
             return false;
         }
 
-        echo "Saisir email: ";
+        echo "Enter email: ";
         $email = readline();
-
         if (!preg_match(self::EMAIL_PATTERN, $email)) {
-            echo "Email incorrect";
+            echo "Invalid email";
             return false;
         }
 
         try {
             $this->studentRepository->save(new Student(null, $firstname, $lastname, $dob, $email));
+            $this->logger->log(LogType::DEBUG, 'Insertion', "Student created: {$firstname} {$lastname}");
             return true;
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Insertion', "Error during student creation: " . $e->getMessage());
             print("Erreur lors de save : " . $e->getMessage());
             return false;
         }
     }
 
-    // Permet d'éditer un étudiant
-    function editStudent(): void
+    public function editStudent(): void
     {
-        echo "Saisir l'id de l'étudiant: ";
+        echo "Enter student ID: ";
         $id = (int)readline();
 
-        try{
-            // On récupère l'étudiant en base de données s'il existe
+        try {
             $student = $this->studentRepository->findById($id);
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Update', "Error during findById: " . $e->getMessage());
             print("Erreur lors de findById : " . $e->getMessage());
-            $student = false;
-        }
-
-        // Si l'étudiant n'est pas trouvé, on quitte la fonction
-        if (!$student) {
-            echo "Aucun étudiant trouvé avec l'id {$id}";
             return;
         }
-        readline();
 
-        echo "Saisir prénom: ";
+        if (!$student) {
+            echo "No student found with ID {$id}";
+            return;
+        }
+
+        echo "Enter new first name (leave blank to keep current): ";
         $firstname = readline();
-
-        // Si l'utilisateur ne saisit rien, firstname garde son ancienne valeur
         if (!empty($firstname)) {
             $student->firstname = $firstname;
         }
 
-        echo "Saisir nom: ";
+        echo "Enter new last name: ";
         $lastname = readline();
-
         if (!empty($lastname)) {
             $student->lastname = $lastname;
         }
 
-        echo "Saisir date naissance: ";
+        echo "Enter new date of birth: ";
         $dob = readline();
-
         if (!empty($dob) && preg_match(self::DATE_PATTERN, $dob)) {
             $student->date_of_birth = $dob;
         }
 
-        echo "Saisir email: ";
+        echo "Enter new email: ";
         $email = readline();
-
         if (!empty($email) && preg_match(self::EMAIL_PATTERN, $email)) {
             $student->email = $email;
         }
 
         try {
             $this->studentRepository->update($student);
+            $this->logger->log(LogType::DEBUG, 'Update', "Student updated: ID {$student->id}");
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Update', "Error during update: " . $e->getMessage());
             print("Erreur lors de update : " . $e->getMessage());
         }
     }
 
-    // Supprime un étudiant par son id
-    function deleteStudent(): void
+    public function deleteStudent(): void
     {
-        echo "Saisir l'id de l'étudiant: ";
+        echo "Enter student ID: ";
         $id = (int)readline();
 
-        try{
+        try {
             $success = $this->studentRepository->deleteById($id);
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Suppression', "Error during deleteById: " . $e->getMessage());
             print("Erreur lors de deleteById : " . $e->getMessage());
-            $success = false;
+            return;
         }
 
-        if($success)
-            echo "L'étudiant avec l'ID $id a été supprimé.\n";
-        else
-            echo "L'id est incorrecte.\n";
+        if ($success) {
+            echo "Student with ID $id deleted.\n";
+            $this->logger->log(LogType::WARN, 'Suppression', "Student deleted: ID $id");
+        } else {
+            echo "Invalid ID.\n";
+            $this->logger->log(LogType::ERR, 'Suppression', "Failed to delete student with ID: $id");
+        }
     }
 
-    function searchStudentsByIdentity(): void {
-        // On prépare le paramètre pour le like
-        echo "Saisir le nom ou prénom de l'étudiant: ";
+    public function searchStudentsByIdentity(): void
+    {
+        echo "Enter name or first name to search: ";
         $input = '%' . readline() . '%';
 
-        $students = [];
-        try{
+        try {
             $students = $this->studentRepository->findAllByName($input);
         } catch (PDOException $e) {
+            $this->logger->log(LogType::ERR, 'Search', "Error during search: " . $e->getMessage());
             print("Erreur lors de findAllByName : " . $e->getMessage());
+            return;
         }
 
-        echo "=== Affichage de tout étudiants ayant $input dans leur nom ou prénom === \n";
+        echo "=== Students matching {$input} === \n";
         foreach ($students as $student) {
-            // On affiche chaque étudiant récupéré depuis la base de données
             echo $student . PHP_EOL;
         }
+
+        $this->logger->log(LogType::DEBUG, 'Search', "Performed search for identity containing: {$input}");
     }
 }
