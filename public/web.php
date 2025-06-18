@@ -37,14 +37,14 @@ function handleCreateStudent($studentService, $logger): void
     $email = trim($_POST['email'] ?? '');
 
     if (empty($firstname) || empty($lastname)) {
-        $logger->log(\src\model\LogType::WARN, 'Insertion', 'Missing firstname or lastname (web)');
+        $logger->log(\src\enum\LogType::WARN, 'Insertion', 'Missing firstname or lastname (web)');
         return;
     }
 
     $student = new \src\model\Student(null, $firstname, $lastname, $dob ?: null, $email ?: null);
     $studentService->getRepository()->save($student);
 
-    $logger->log(\src\model\LogType::DEBUG, 'Insertion', "Added student $firstname $lastname via web");
+    $logger->log(\src\enum\LogType::DEBUG, 'Insertion', "Added student $firstname $lastname via web");
 }
 
 function handleDeleteStudent($studentService, $logger): void
@@ -52,12 +52,12 @@ function handleDeleteStudent($studentService, $logger): void
     $id = trim($_POST['id'] ?? '');
 
     if (empty($id)) {
-        $logger->log(\src\model\LogType::WARN, 'Deletion', 'Empty ID on web deletion');
+        $logger->log(\src\enum\LogType::WARN, 'Deletion', 'Empty ID on web deletion');
         return;
     }
 
     $studentService->getRepository()->deleteById($id);
-    $logger->log(\src\model\LogType::DEBUG, 'Deletion', "Deleted student ID $id via web");
+    $logger->log(\src\enum\LogType::DEBUG, 'Deletion', "Deleted student ID $id via web");
 }
 
 function renderView(array $students): void

@@ -2,7 +2,7 @@
 use MongoDB\Client;
 use src\repository\StudentRepository;
 use src\service\StudentService;
-use src\model\Logger;
+use src\model\Log;
 
 function initApp(): array
 {
@@ -12,7 +12,7 @@ function initApp(): array
     $studentCollection = $db->students;
     $logCollection = $db->logs;
 
-    $logger = new Logger($logCollection);
+    $logger = new Log($logCollection);
     $studentRepo = new StudentRepository($studentCollection);
     $studentService = new StudentService($studentRepo, $logger);
 
