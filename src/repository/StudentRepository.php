@@ -42,22 +42,32 @@ class StudentRepository {
         }
     }
 
-    public function save(Student $student) {
-        $request = "INSERT INTO student (firstname, lastname, date_of_birth, email)
-                    VALUES (:firstname, :lastname, :date_of_birth, :email)";
+    public function save(Student $student): bool
+    {
+        $count = $this->collection->countDocuments();
+        if ($count >= 50) {
+            throw new \RuntimeException("Limit of 50 students reached.");
+        }
 
-        $statement = $this->db->prepare($request);
+        if (empty($student->firstname) || empty($student->lastname)) {
+            throw new \InvalidArgumentException("Firstname and lastname are required.");
+        }
 
-        // Le charactère ":" est facultatif lorsque l'on bind les paramètres
-        $statement->bindValue(":firstname", $student->firstname);
-        $statement->bindValue(":lastname", $student->lastname);
-        $statement->bindValue(":date_of_birth", $student->date_of_birth);
-        $statement->bindValue(":email", $student->email);
+        $doc = [
+            'firstname' => $student->firstname,
+            'lastname' => $student->lastname,
+        ];
 
-        $statement->execute();
+        if (!empty($student->date_of_birth)) {
+            $doc['date_of_birth'] = $student->date_of_birth;
+        }
 
-        // Retourne le nombre de lignes affectés par la requête
-        return $statement->rowCount() === 1;
+        if (!empty($student->email)) {
+            $doc['email'] = $student->email;
+        }
+
+        $result = $this->collection->insertOne($doc);
+        return $result->isAcknowledged();
     }
 
     public function update(Student $studentToUpdate) {
