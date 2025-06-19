@@ -4,7 +4,6 @@ namespace src\service;
 
 use Exception;
 use src\enum\LogType;
-use src\service\LoggerService;
 use src\model\Student;
 use src\repository\StudentRepository;
 
@@ -12,7 +11,7 @@ readonly class StudentService
 {
     public function __construct(
         private StudentRepository $studentRepository,
-        private LoggerService $logger
+        private LogService $logger
     ) {}
 
     public function displayStudents(): void

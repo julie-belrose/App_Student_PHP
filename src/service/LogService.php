@@ -6,7 +6,7 @@ use src\enum\LogType;
 use src\model\Log;
 use src\repository\LogRepository;
 
-readonly class LoggerService
+readonly class LogService
 {
     public function __construct(private LogRepository $repository) {}
 

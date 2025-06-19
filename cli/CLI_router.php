@@ -1,5 +1,8 @@
 <?php
-function handleCli(array $services): void
+
+use JetBrains\PhpStorm\NoReturn;
+
+#[NoReturn] function handleCli(array $services): void
 {
     $studentService = $services['studentService'];
     $loggerService = $services['loggerService'];
@@ -20,7 +23,7 @@ function handleCli(array $services): void
             default => print("Invalid input" . PHP_EOL),
         };
 
-        echo "\n--- Press Enter to continue ---\n";
+        echo PHP_EOL . "--- Press Enter to continue ---" .  PHP_EOL;
         readline();
     }
 }

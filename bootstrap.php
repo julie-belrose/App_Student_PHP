@@ -1,8 +1,9 @@
 <?php
+
 use MongoDB\Client;
 use src\repository\StudentRepository;
 use src\service\StudentService;
-use src\model\Log;
+use src\service\LogService;
 
 function initApp(): array
 {
@@ -14,11 +15,10 @@ function initApp(): array
 
     $loggerService = new LogService($logCollection);
     $studentRepo = new StudentRepository($studentCollection);
-    $studentService = new StudentService($studentRepo, $logger);
+    $studentService = new StudentService($studentRepo, $loggerService);
 
     return [
         'studentService' => $studentService,
         'loggerService' => $loggerService
     ];
-
 }
